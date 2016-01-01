@@ -1,0 +1,22 @@
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/MenuItemPressed</item>
+        <item name="colorPrimaryDark">@color/MenuItemPressed</item>
+        <item name="actionMenuTextColor">#000000</item>
+        <item name="titleTextColor">#000000</item>
+    </style>
+
+    <style name="ToolbarTitle" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textSize">17sp</item>
+    </style>
+
+    <style name="NavigationDrawerStyle">
+        <item name="android:textSize">14sp</item>
+        <item name="android:fontFamily">avenir-medium</item>
+        <item name="android:textColor">#000000</item>
+    </style>
+
+</resources>
