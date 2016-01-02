@@ -13,8 +13,6 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
-import my.fadzlirazali.myfind.jobs.GetNearbyLocationJob;
-
 public class MainActivity extends BaseActivity {
 
 

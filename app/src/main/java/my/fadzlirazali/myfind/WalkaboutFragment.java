@@ -1,7 +1,16 @@
 package my.fadzlirazali.myfind;
 
 
+import android.Manifest;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -20,6 +29,7 @@ import my.fadzlirazali.myfind.Event.NearbyEvent;
 import my.fadzlirazali.myfind.jobs.GetNearbyLocationJob;
 import my.fadzlirazali.myfind.models.Nearby;
 import my.fadzlirazali.myfind.models.Result;
+import my.fadzlirazali.myfind.util.MyNetworkLocation;
 
 
 /**
@@ -34,6 +44,10 @@ public class WalkaboutFragment extends Fragment{
 
     private Button mCurrentBtn;
 
+    private LocationManager locationManager;
+    private String provider;
+    private MyNetworkLocation currentLocation;
+
     public WalkaboutFragment() {
         // Required empty public constructor
     }
@@ -42,7 +56,38 @@ public class WalkaboutFragment extends Fragment{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        MyApplication.getInstance().getJobManager().addJobInBackground(new GetNearbyLocationJob());
+
+        currentLocation = new MyNetworkLocation();
+        locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+        boolean enabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
+        // check if enabled and if not send user to the GSP settings
+        // Better solution would be to display a dialog and suggesting to
+        // go to the settings
+        if (!enabled) {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            startActivity(intent);
+        }
+
+        Criteria criteria = new Criteria();
+        provider = locationManager.getBestProvider(criteria, false);
+
+        if (ActivityCompat.checkSelfPermission(getActivity(),Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getActivity(),Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        Location location = locationManager.getLastKnownLocation(provider);
+
+        // Initialize the location fields
+        if (location != null) {
+            MyApplication.getInstance().getJobManager().addJobInBackground(new GetNearbyLocationJob(1000,location.getLatitude(),location.getLongitude(),"food"));
+
+        } else {
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+            locationManager.requestLocationUpdates(provider, 0, 1, currentLocation);
+        }
     }
 
 
@@ -55,6 +100,27 @@ public class WalkaboutFragment extends Fragment{
         mCurrentBtn = (Button) view.findViewById(R.id.current_btn);
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        locationManager.requestLocationUpdates(provider, 400, 1, currentLocation);
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) !=
+                PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        locationManager.removeUpdates(currentLocation);
     }
 
     @Override
