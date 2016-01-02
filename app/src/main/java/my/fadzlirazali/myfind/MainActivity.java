@@ -13,6 +13,8 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import my.fadzlirazali.myfind.jobs.GetNearbyLocationJob;
+
 public class MainActivity extends BaseActivity {
 
 
@@ -27,14 +29,13 @@ public class MainActivity extends BaseActivity {
         if (Build.VERSION.SDK_INT >= 21) {
             Window window = getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
-            window.setStatusBarColor(getResources().getColor(R.color.ColorPrimaryDark,getTheme()));
+//            window.setStatusBarColor(getResources().getColor(R.color.ColorPrimaryDark,getTheme()));
         }
         setContentView(R.layout.activity_main);
 
+
         /* init toolbar from base class */
         getActionToolbar();
-//        toolbar = (Toolbar) findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
 
         /* Initializing NavigationView */
         navigationView = (NavigationView)findViewById(R.id.navigation_view);
@@ -50,7 +51,7 @@ public class MainActivity extends BaseActivity {
                 else
                     menuItem.setChecked(true);
 
-//               /* Close drawer */
+                /* Close drawer */
                 drawerLayout.closeDrawers();
 
                 Fragment fragment;
@@ -115,4 +116,5 @@ public class MainActivity extends BaseActivity {
         fragmentTransaction.replace(R.id.frame_container, fragment);
         fragmentTransaction.commit();
     }
+
 }
